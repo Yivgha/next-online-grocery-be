@@ -724,6 +724,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    user_carts: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::user-cart.user-cart'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -825,6 +830,44 @@ export interface ApiCategoryCategory extends Schema.CollectionType {
   };
 }
 
+export interface ApiOrderOrder extends Schema.CollectionType {
+  collectionName: 'orders';
+  info: {
+    singularName: 'order';
+    pluralName: 'orders';
+    displayName: 'Order';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    username: Attribute.String & Attribute.Required;
+    email: Attribute.String & Attribute.Required;
+    phone: Attribute.String & Attribute.Required;
+    zip: Attribute.String & Attribute.Required;
+    address: Attribute.Text & Attribute.Required;
+    total_order_amount: Attribute.Decimal & Attribute.Required;
+    userId: Attribute.Integer & Attribute.Required;
+    paymentId: Attribute.String & Attribute.Required;
+    orderItemList: Attribute.Component<'ordered-item.ordered-item', true>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiProductProduct extends Schema.CollectionType {
   collectionName: 'products';
   info: {
@@ -848,6 +891,11 @@ export interface ApiProductProduct extends Schema.CollectionType {
       'api::product.product',
       'manyToMany',
       'api::category.category'
+    >;
+    user_carts: Attribute.Relation<
+      'api::product.product',
+      'manyToMany',
+      'api::user-cart.user-cart'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -899,6 +947,49 @@ export interface ApiSliderSlider extends Schema.CollectionType {
   };
 }
 
+export interface ApiUserCartUserCart extends Schema.CollectionType {
+  collectionName: 'user_carts';
+  info: {
+    singularName: 'user-cart';
+    pluralName: 'user-carts';
+    displayName: 'User Cart';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    quantity: Attribute.Integer & Attribute.Required;
+    amount: Attribute.Decimal & Attribute.Required;
+    products: Attribute.Relation<
+      'api::user-cart.user-cart',
+      'manyToMany',
+      'api::product.product'
+    >;
+    users_permissions_users: Attribute.Relation<
+      'api::user-cart.user-cart',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    userID: Attribute.Integer & Attribute.Required;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::user-cart.user-cart',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::user-cart.user-cart',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -918,8 +1009,10 @@ declare module '@strapi/types' {
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
       'api::category.category': ApiCategoryCategory;
+      'api::order.order': ApiOrderOrder;
       'api::product.product': ApiProductProduct;
       'api::slider.slider': ApiSliderSlider;
+      'api::user-cart.user-cart': ApiUserCartUserCart;
     }
   }
 }
